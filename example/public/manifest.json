@@ -1,0 +1,8 @@
+{
+  "short_name": "react-pack-mule",
+  "name": "react-pack-mule",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
