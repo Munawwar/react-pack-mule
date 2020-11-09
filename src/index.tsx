@@ -1,5 +1,12 @@
 import { useCallback } from 'react';
-import create, { SetState, State, StateCreator, StateSelector } from 'zustand';
+import create, {
+	SetState,
+	State,
+	StateCreator,
+	StateSelector,
+	StoreApi,
+	Subscribe,
+} from 'zustand';
 import shallow from 'zustand/shallow';
 
 interface StoreMethods<TState extends State> {
@@ -19,18 +26,23 @@ interface StoreMethods<TState extends State> {
 		partial: Partial<TState[Prop]>,
 		updater?: (partial: Partial<TState>) => void,
 	) => void;
+	subscribe: Subscribe<TState>
 }
 
 export const createStore = function createStore<TState extends State>(
 	initState: TState,
-	initialStateCreator: StateCreator<TState, SetState<TState>> = () => initState,
+	initialStateCreator: StateCreator<TState, SetState<TState>> | StoreApi<TState> = () => initState,
 ): StoreMethods<TState> {
 	type StoreKey = keyof TState;
 
 	// create the store
 	const useStore = create(initialStateCreator);
 
-	const { getState: getStates, setState: setStates } = useStore;
+	const {
+		getState: getStates,
+		setState: setStates,
+		subscribe,
+	} = useStore;
 
 	// global state merger. unlike redux, I am not enforcing reducer layer
 	const plainObjectPrototype = Object.getPrototypeOf({});
@@ -121,6 +133,7 @@ export const createStore = function createStore<TState extends State>(
 		setStates,
 		updateStates,
 		createPropUpdater,
+		subscribe,
 	};
 };
 

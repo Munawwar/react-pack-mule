@@ -159,6 +159,13 @@ setStates({
 
 `setStates()` simply replaces the entire store.
 
+### Using Redux DevTools
+
+```js
+import { devtools } from 'zustand/middleware'
+const storeMethods = createStore({}, devtools(store));
+```
+
 ### Play with it
 
 Go to examples directory
@@ -269,7 +276,7 @@ const setCartItems = (items) => updateCart({ items });
 
 <br><br>
 
-##### createStore(initialStoreProps: Object[, initialStateCreator = () => initialStoreProps])
+##### createStore(initialStoreProps: Object[, initialStateCreator = () => initialStoreProps]): StoreMethods
 
 Creates a new store and returns an object with functions with same name & interface as the APIs mentioned above (i.e. store.getStates(), store.useGlobalStates() hook etc) to manage the new store.
 
