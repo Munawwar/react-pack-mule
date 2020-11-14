@@ -194,6 +194,8 @@ If you used a selector function, then function's signature follows exactly as zu
 
 Alias to useStore. It's exactly the same. This interface is there to keep compatibility with `react-global-states` library
 
+<br><br>
+
 ##### getStates()
 
 Returns: the entire global store. You can use this outside of a component (example: in an action file).
