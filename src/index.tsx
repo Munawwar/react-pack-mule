@@ -10,6 +10,10 @@ import create, {
 import shallow from 'zustand/shallow';
 
 interface StoreMethods<TState extends State> {
+	useStore<U>(
+		selector: (keyof TState)[] | StateSelector<TState, U>,
+		comparator?: (a: unknown, b: unknown) => boolean,
+	): Partial<TState>;
 	useGlobalStates<U>(
 		selector: (keyof TState)[] | StateSelector<TState, U>,
 		comparator?: (a: unknown, b: unknown) => boolean,
@@ -36,13 +40,13 @@ export const createStore = function createStore<TState extends State>(
 	type StoreKey = keyof TState;
 
 	// create the store
-	const useStore = create(initialStateCreator);
+	const useZustandStore = create(initialStateCreator);
 
 	const {
 		getState: getStates,
 		setState: setStates,
 		subscribe,
-	} = useStore;
+	} = useZustandStore;
 
 	// global state merger. unlike redux, I am not enforcing reducer layer
 	const plainObjectPrototype = Object.getPrototypeOf({});
@@ -101,7 +105,7 @@ export const createStore = function createStore<TState extends State>(
 		};
 	}
 
-	function useGlobalStates<U>(
+	function useStore<U>(
 		selector: StoreKey[] | StateSelector<TState, U>,
 		comparator = shallow,
 	): Partial<TState> {
@@ -123,12 +127,13 @@ export const createStore = function createStore<TState extends State>(
 			}, selector);
 		}
 
-		const results = useStore(selectorFunction, comparator) as Partial<TState>;
+		const results = useZustandStore(selectorFunction, comparator) as Partial<TState>;
 		return results;
 	}
 
 	return {
-		useGlobalStates,
+		useStore,
+		useGlobalStates: useStore,
 		getStates,
 		setStates,
 		updateStates,
