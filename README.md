@@ -163,7 +163,8 @@ setStates({
 
 ```js
 import { devtools } from 'zustand/middleware'
-const storeMethods = createStore({}, devtools(store));
+const getInitialState = () => ({ /* ... */ })
+const storeMethods =  createStore(null, devtools(getInitialState))
 ```
 
 ### Play with it
