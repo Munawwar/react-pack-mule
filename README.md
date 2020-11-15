@@ -11,7 +11,7 @@ pack-mule avoids even more ceremonies such as actions binding. Gives array selec
 ### Quick example
 
 ```
-npm install react-pack-mule
+npm install react-pack-mule zustand@^3.1.4
 ```
 
 JS
