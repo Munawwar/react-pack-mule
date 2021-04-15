@@ -17,15 +17,11 @@ npm install react-pack-mule
 JS
 
 ```jsx
-import { useStore, updateStates } from 'react-pack-mule';
+import { useGlobalState, updateStates } from 'react-pack-mule';
 const Component = (props) => {
   // get some specific level 1 properties you need from the global store
   // the hook is reactive of course (means any update to 'greeting' will re-render component)
-  const {
-    greeting: {
-      name = 'Dan'
-    } = {}
-  } = useStore(['greeting']);
+  const { name = 'Dan' } = useGlobalState('greeting') || {};
 
   return (
     <div>
@@ -49,7 +45,7 @@ type MyStore = {
   }
 }
 
-const { useStore, updateStates } = createStore<MyStore>({
+const { useGlobalState, updateStates } = createStore<MyStore>({
   greeting: {
     name: 'Dan'
   }
@@ -57,7 +53,7 @@ const { useStore, updateStates } = createStore<MyStore>({
 
 const Component = (props) => {
   // get only the level 1 properties you need from the global store
-  const { greeting: { name } } = useStore(['greeting']);
+  const { name } = useGlobalState('greeting');
 
   return (
     <div>
@@ -75,7 +71,7 @@ That's it. Simple as that.
 
 This library only has 6 exported functions in total - 3 of them demonstrated above. Another 2 will be explained in the next two sections.
 
-`useStore` does a shallow equality by default. You can change it to strict equality or deep equality by passing a custom comparator as second argument.
+`useGlobalState` does a shallow equality by default. You can change it to strict equality or deep equality by passing a custom comparator as second argument.
 
 ## Contents
 
@@ -177,22 +173,27 @@ and start playing with the example.
 
 ### API Reference
 
-##### useStore(selector&lt;String[]|Function&gt;[, comparator = shallowEqual])
+##### useStore(selector&lt;Function&gt;[, comparator = shallowEqual])
 
-React hook to fetch the properties you want from global store. Using the hook also associates the component with only those props you've asked for. This makes re-rendering performance much better.
+Alias to zustand's useStore() hook.
 
 Parameters:
 
-selector: Array of prop names (strings) you want to fetch from global store or a function that picks the states you want from the store.
+selector: A function that picks the states you want from the store.
 
-Returns: If array selector was used, then return value is an object with the key, values for each prop name you asked for. If a value doesn't exist you get undefined as the value for the prop name.
-If you used a selector function, then function's signature follows exactly as zustand's useStore() method's selector.
+Returns: States that you returned from function.
 
 <br><br>
 
-##### useGlobalStates
+##### useGlobalState(selector&lt;String&gt;[, comparator = shallowEqual])
 
-Alias to useStore. It's exactly the same. This interface is there to keep compatibility with `react-global-states` library
+React hook to fetch property you want from global store. Using the hook also associates the component with the single prop you've asked for. This makes re-rendering performance much better.
+
+Parameters:
+
+selector: A property name (string) you want to fetch from global store.
+
+Returns: property from the global store as the passed selector. If a value doesn't exist you get undefined.
 
 <br><br>
 
@@ -284,7 +285,7 @@ const setCartItems = (items) => updateCart({ items });
 
 ##### createStore(initialStoreProps: Object[, initialStateCreator = () => initialStoreProps]): StoreMethods
 
-Creates a new store and returns an object with functions with same name & interface as the APIs mentioned above (i.e. store.getStates(), store.useStore() hook etc) to manage the new store.
+Creates a new store and returns an object with functions with same name & interface as the APIs mentioned above (i.e. store.getStates(), store.useGlobalState() hook etc) to manage the new store.
 
 There are two use-cases for creating a fresh store, instead of using the default store:
 

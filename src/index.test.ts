@@ -12,7 +12,7 @@ type MyStore = {
 }
 
 const {
-	useStore,
+	useGlobalState,
 	updateStates,
 	getStates,
 	createPropUpdater,
@@ -30,9 +30,9 @@ const {
 jest.useFakeTimers();
 
 describe('react-pack-mule', () => {
-	it('useStore gets the specified store props', () => {
-		const { result } = renderHook(() => useStore(['cart']));
-		expect(result.current.cart?.quantity).toBe(1);
+	it('useGlobalState gets the specified store props', () => {
+		const { result } = renderHook(() => useGlobalState('cart'));
+		expect(result.current?.quantity).toBe(1);
 	});
 
 	it('updateStates merges level 2 props properly', () => {

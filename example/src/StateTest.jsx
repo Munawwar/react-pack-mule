@@ -1,9 +1,9 @@
 import React from 'react';
 import {
 	updateStates,
-	useStore,
+	useGlobalState,
 	createPropUpdater,
-} from './react-pack-mule';
+} from './store';
 
 const updateCart = createPropUpdater('cart');
 
@@ -11,7 +11,7 @@ const Component = ({
 	parentProp = '',
 }) => {
 	console.log('StateTest render...');
-	const { user: { name } = {} } = useStore(['user']);
+	const { name } = useGlobalState('user') || {};
 	return (
 		<div>
 			Hi {name}

@@ -11,13 +11,13 @@ import shallow from 'zustand/shallow';
 
 interface StoreMethods<TState extends State> {
 	useStore<U>(
-		selector: (keyof TState)[] | StateSelector<TState, U>,
+		selector: (keyof TState) | StateSelector<TState, U>,
 		comparator?: (a: unknown, b: unknown) => boolean,
 	): Partial<TState>;
-	useGlobalStates<U>(
-		selector: (keyof TState)[] | StateSelector<TState, U>,
+	useGlobalState<K extends keyof TState>(
+		selector: K,
 		comparator?: (a: unknown, b: unknown) => boolean,
-	): Partial<TState>;
+	): TState[K];
 	getStates(): TState;
 	setStates(newStore: TState): void;
 	updateStates(
@@ -105,35 +105,17 @@ export const createStore = function createStore<TState extends State>(
 		};
 	}
 
-	function useStore<U>(
-		selector: StoreKey[] | StateSelector<TState, U>,
+	function useGlobalState<K extends StoreKey>(
+		selector: StoreKey,
 		comparator = shallow,
-	): Partial<TState> {
-		let selectorFunction = selector as StateSelector<TState, U>;
-		if (Array.isArray(selector)) {
-			// User is supposed to follow one style of selector per component
-			// either array or function.. cannot switch dynamically.
-			// so disabling eslint warning on consistent hook calls is fine.
-			// eslint-disable-next-line react-hooks/rules-of-hooks
-			selectorFunction = useCallback((store: TState) => {
-				const propsToConnectTo = selector as StoreKey[];
-				const props = propsToConnectTo.reduce((acc, propName) => {
-					if (propName in store) {
-						acc[propName] = store[propName];
-					}
-					return acc;
-				}, {} as Partial<TState>);
-				return props as U;
-			}, selector);
-		}
-
-		const results = useZustandStore(selectorFunction, comparator) as Partial<TState>;
-		return results;
+	): TState[K] {
+		const selectorFunction = useCallback((store: TState) => store[selector] as TState[K], [selector]);
+		return useZustandStore(selectorFunction, comparator);
 	}
 
 	return {
-		useStore,
-		useGlobalStates: useStore,
+		useStore: useZustandStore,
+		useGlobalState,
 		getStates,
 		setStates,
 		updateStates,
@@ -145,7 +127,8 @@ export const createStore = function createStore<TState extends State>(
 const defaultStore = createStore({});
 
 export const {
-	useGlobalStates,
+	useStore,
+	useGlobalState,
 	getStates,
 	setStates,
 	updateStates,
