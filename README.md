@@ -17,15 +17,11 @@ npm install react-pack-mule zustand@^3.1.4
 JS
 
 ```jsx
-import { useStore, updateStates } from 'react-pack-mule';
+import { useGlobalState, updateStates } from 'react-pack-mule';
 const Component = (props) => {
   // get some specific level 1 properties you need from the global store
   // the hook is reactive of course (means any update to 'greeting' will re-render component)
-  const {
-    greeting: {
-      name = 'Dan'
-    } = {}
-  } = useStore(['greeting']);
+  const { name = 'Dan' } = useGlobalState('greeting') || {};
 
   return (
     <div>
@@ -49,7 +45,7 @@ type MyStore = {
   }
 }
 
-const { useStore, updateStates } = createStore<MyStore>({
+const { useGlobalState, updateStates } = createStore<MyStore>({
   greeting: {
     name: 'Dan'
   }
@@ -57,7 +53,7 @@ const { useStore, updateStates } = createStore<MyStore>({
 
 const Component = (props) => {
   // get only the level 1 properties you need from the global store
-  const { greeting: { name } } = useStore(['greeting']);
+  const { name } = useGlobalState('greeting');
 
   return (
     <div>
@@ -75,7 +71,7 @@ That's it. Simple as that.
 
 This library only has 6 exported functions in total - 3 of them demonstrated above. Another 2 will be explained in the next two sections.
 
-`useStore` does a shallow equality by default. You can change it to strict equality or deep equality by passing a custom comparator as second argument.
+`useGlobalState` does a shallow equality by default. You can change it to strict equality or deep equality by passing a custom comparator as second argument.
 
 ## Contents
 
@@ -178,22 +174,21 @@ and start playing with the example.
 
 ### API Reference
 
-##### useStore(selector&lt;String[]|Function&gt;[, comparator = shallowEqual])
+##### useGlobalState(prop: String[, comparator = shallowEqual]): State[prop]
 
-React hook to fetch the properties you want from global store. Using the hook also associates the component with only those props you've asked for. This makes re-rendering performance much better.
+React hook to fetch a property from global store. Using the hook also re-renders the component when the property changes. The comparator function is use to check whether the property has changed. By default only a shallow compare is done.
 
 Parameters:
 
-selector: Array of prop names (strings) you want to fetch from global store or a function that picks the states you want from the store.
+prop: Property name (string) you want to fetch from global store
 
-Returns: If array selector was used, then return value is an object with the key, values for each prop name you asked for. If a value doesn't exist you get undefined as the value for the prop name.
-If you used a selector function, then function's signature follows exactly as zustand's useStore() method's selector.
+Returns: value from the prop name, if it exists else undefined.
 
 <br><br>
 
-##### useGlobalStates
+##### useStore(selector: Function[, comparator = shallowEqual]) - alias to zustand store
 
-Alias to useStore. It's exactly the same. This interface is there to keep compatibility with `react-global-states` library
+Alias to zustand's useStore.
 
 <br><br>
 
@@ -285,7 +280,7 @@ const setCartItems = (items) => updateCart({ items });
 
 ##### createStore(initialStoreProps: Object[, initialStateCreator = () => initialStoreProps]): StoreMethods
 
-Creates a new store and returns an object with functions with same name & interface as the APIs mentioned above (i.e. store.getStates(), store.useStore() hook etc) to manage the new store.
+Creates a new store and returns an object with functions with same name & interface as the APIs mentioned above (i.e. store.getStates(), store.useGlobalState() hook etc) to manage the new store.
 
 There are two use-cases for creating a fresh store, instead of using the default store:
 
@@ -301,3 +296,11 @@ initialStateCreator (optional): Function used when doing zutand create(). You ca
 Returns: An object with functions to use the new store.
 
 <br><br>
+
+
+## Breaking change - v1
+
+useStore does not accept array of strings anymore. Only supports selector function just like zustand's useStore.
+
+useGlobalStates() has been removed. Reason being, when refactoring code, it is easy to forget to remove a dependency.
+In hind-sight it was better to fetch single property. Therefore useGlobalState (singular) has been introduced.

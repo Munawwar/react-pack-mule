@@ -1,5 +1,5 @@
 import React from 'react';
-import { setStates, getStates } from './react-pack-mule';
+import { setStates, getStates } from 'react-pack-mule';
 import StateTest from './StateTest';
 
 // initial state
@@ -20,7 +20,7 @@ window.showStates = () => console.log(getStates());
 
 function App() {
 	return (
-		<StateTest parentProp='My name is firoz' />
+		<StateTest parentProp='Parent prop text' />
 	);
 }
 

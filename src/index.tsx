@@ -3,21 +3,18 @@ import create, {
 	SetState,
 	State,
 	StateCreator,
-	StateSelector,
 	StoreApi,
 	Subscribe,
+	UseStore
 } from 'zustand';
 import shallow from 'zustand/shallow';
 
 interface StoreMethods<TState extends State> {
-	useStore<U>(
-		selector: (keyof TState)[] | StateSelector<TState, U>,
+	useGlobalState<Key extends keyof TState>(
+		selector: Key,
 		comparator?: (a: unknown, b: unknown) => boolean,
-	): Partial<TState>;
-	useGlobalStates<U>(
-		selector: (keyof TState)[] | StateSelector<TState, U>,
-		comparator?: (a: unknown, b: unknown) => boolean,
-	): Partial<TState>;
+	): TState[Key];
+	useStore: UseStore<TState>;
 	getStates(): TState;
 	setStates(newStore: TState): void;
 	updateStates(
@@ -40,13 +37,13 @@ export const createStore = function createStore<TState extends State>(
 	type StoreKey = keyof TState;
 
 	// create the store
-	const useZustandStore = create(initialStateCreator);
+	const useStore = create(initialStateCreator);
 
 	const {
 		getState: getStates,
 		setState: setStates,
 		subscribe,
-	} = useZustandStore;
+	} = useStore;
 
 	// global state merger. unlike redux, I am not enforcing reducer layer
 	const plainObjectPrototype = Object.getPrototypeOf({});
@@ -105,39 +102,23 @@ export const createStore = function createStore<TState extends State>(
 		};
 	}
 
-	function useStore<U>(
-		selector: StoreKey[] | StateSelector<TState, U>,
+	function useGlobalState<Key extends StoreKey>(
+		propName: Key,
 		comparator = shallow,
-	): Partial<TState> {
-		let selectorFunction = selector as StateSelector<TState, U>;
-		if (Array.isArray(selector)) {
-			// User is supposed to follow one style of selector per component
-			// either array or function.. cannot switch dynamically.
-			// so disabling eslint warning on consistent hook calls is fine.
-			// eslint-disable-next-line react-hooks/rules-of-hooks
-			selectorFunction = useCallback((store: TState) => {
-				const propsToConnectTo = selector as StoreKey[];
-				const props = propsToConnectTo.reduce((acc, propName) => {
-					if (propName in store) {
-						acc[propName] = store[propName];
-					}
-					return acc;
-				}, {} as Partial<TState>);
-				return props as U;
-			}, selector);
-		}
-
-		const results = useZustandStore(selectorFunction, comparator) as Partial<TState>;
+	): TState[Key] {
+		const selectorFunction = useCallback((store: TState) => store[propName], [propName]);
+		const results = useStore(selectorFunction, comparator);
 		return results;
 	}
 
 	return {
-		useStore,
-		useGlobalStates: useStore,
+		useGlobalState,
 		getStates,
 		setStates,
 		updateStates,
 		createPropUpdater,
+		// zustand aliases
+		useStore,
 		subscribe,
 	};
 };
@@ -145,11 +126,13 @@ export const createStore = function createStore<TState extends State>(
 const defaultStore = createStore({});
 
 export const {
-	useGlobalStates,
+	useGlobalState,
 	getStates,
 	setStates,
 	updateStates,
 	createPropUpdater,
+	useStore,
+	subscribe,
 } = defaultStore;
 
 // -------------- app code testing ------------------

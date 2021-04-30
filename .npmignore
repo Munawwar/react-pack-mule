@@ -1,0 +1,11 @@
+example
+example-nextjs
+.vscode
+.env
+.eslintrc
+.gitignore
+.travis.yml
+rollup.config.js
+tsconfig.json
+tsconfig.test.json
+node_modules/
