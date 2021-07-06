@@ -6,7 +6,7 @@ react-pack-mule is a global state manager, and an opinionated re-interfaced subs
 
 zustand avoids a whole bunch of unnecessary boilerplate - reducer, dispatch, thunk, provider, context..
 
-pack-mule avoids even more ceremonies such as actions binding. Gives array selector syntax (on top of what zustand gives)
+pack-mule avoids even more ceremonies such as actions functions, and gives an even more simplified interface.
 
 ### Quick example
 
@@ -83,7 +83,13 @@ This library only has 6 exported functions in total - 3 of them demonstrated abo
 
 ### Action file
 
-It is good practice to move the updateStates() calls to separate "action" file. For e.g. you can unit test the actions without having to test the UI components as well.
+It is good practice to move the updateStates() calls to separate "action" file.
+
+Advantages of having action files include for e.g.
+- you can combine a bunch of state updates into one "action"
+- And then you can call the same action from multiple places rather than writing the same code again.
+- you could intercept actions for logging/debugging purposes. e.g. if you want any "add to cart" action to be passed to google analytics, then you can do it in one place.
+- you can unit test actions without having to also include UI components
 
 actions/greeting.js
 ```js
