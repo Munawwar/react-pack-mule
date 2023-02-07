@@ -1,6 +1,6 @@
 {
   "name": "react-pack-mule",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simple global state store",
   "author": "Munawwar",
   "license": "MIT",
@@ -20,9 +20,7 @@
     "predeploy": "cd example && yarn install && yarn run build",
     "deploy": "gh-pages -d example/build"
   },
-  "dependencies": {
-    "es7-object-polyfill": "^1.0.1"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "react": ">=16.8",
     "zustand": "^3.1.2"
