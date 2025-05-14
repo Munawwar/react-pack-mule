@@ -301,3 +301,8 @@ initialStateCreator (optional): Function used when doing zutand create(). You ca
 Returns: An object with functions to use the new store.
 
 <br><br>
+
+
+## Breaking change
+
+- Introduced a deep equality check before updating store so as to minimize renders. For most code this is a good thing, but it could break some code.
