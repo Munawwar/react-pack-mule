@@ -8,6 +8,7 @@ import create, {
 	Subscribe,
 } from 'zustand';
 import shallow from 'zustand/shallow';
+import deepEqual from 'fast-deep-equal/es6/react';
 
 interface StoreMethods<TState extends State> {
 	useStore<U>(
@@ -60,27 +61,29 @@ export const createStore = function createStore<TState extends State>(
 
 	function shallowUpdater(partial: Partial<TState>) {
 		const store = getStates();
-		const mergedPartial = {};
-		const propNames = Object.keys(partial);
+		const mergedPartial: Partial<TState> = {};
+		const propNames = Object.keys(partial) as (keyof TState)[];
 		while (propNames.length) {
-			const propName: string = propNames.shift() as string;
+			const propName: keyof TState = propNames.shift() as keyof TState;
 			const oldValue = store[propName];
-			const newValue = partial[propName];
+			const newValue = partial[propName] as TState[keyof TState];
+			// eslint-disable-next-line no-continue
+			if (deepEqual(oldValue, newValue)) continue;
 			if (isPlainObject(oldValue) && isPlainObject(newValue)) {
-				const oldObj = oldValue as Record<string, unknown>;
-				const newObj = newValue as Record<string, unknown>;
 				mergedPartial[propName] = {
-					...oldObj,
-					...newObj,
-				};
+					...(oldValue as Record<string, TState[keyof TState]>),
+					...(newValue as Record<string, TState[keyof TState]>),
+				} as TState[keyof TState];
 			} else {
 				mergedPartial[propName] = newValue;
 			}
 		}
-		setStates({
-			...store,
-			...mergedPartial,
-		});
+		if (Object.keys(mergedPartial).length) {
+			setStates({
+				...store,
+				...mergedPartial,
+			});
+		}
 	}
 
 	// updateStates merges properties upto two levels of the data store
