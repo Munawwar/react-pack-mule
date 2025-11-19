@@ -1,55 +1,50 @@
 {
   "name": "react-pack-mule",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Simple global state store",
   "author": "Munawwar",
   "license": "MIT",
+  "type": "module",
   "repository": "https://github.com/Munawwar/react-pack-mule",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "jsnext:main": "dist/index.es.js",
-  "engines": {
-    "node": ">=8",
-    "npm": ">=5"
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "test": "cross-env CI=1 react-scripts test --env=jsdom",
-    "test:watch": "react-scripts test --env=jsdom",
-    "build": "rollup -c",
-    "start": "rollup -c -w",
-    "predeploy": "cd example && yarn install && yarn run build",
-    "deploy": "gh-pages -d example/build"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc",
+    "build:js": "esbuild src/index.tsx --bundle --minify --sourcemap --external:react --external:zustand --format=esm --outfile=dist/index.js",
+    "predeploy": "cd example && npm install && npm run build",
+    "deploy": "gh-pages -d example/public",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write ."
   },
-  "dependencies": {},
   "peerDependencies": {
     "react": ">=16.8",
     "zustand": "^3.1.2"
   },
   "devDependencies": {
-    "@testing-library/react-hooks": "^3.2.1",
-    "@types/jest": "^23.3.13",
+    "@biomejs/biome": "2.3.6",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/react": "^16.7.22",
-    "@typescript-eslint/eslint-plugin": "^3.9.0",
-    "@typescript-eslint/parser": "^3.9.0",
-    "cross-env": "^5.2.0",
-    "eslint": "7.2.0",
-    "eslint-config-airbnb": "18.2.0",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-jsx-a11y": "^6.3.0",
-    "eslint-plugin-react": "^7.20.0",
-    "eslint-plugin-react-hooks": "4.0.0",
+    "@vitest/ui": "^4.0.10",
+    "esbuild": "^0.27.0",
     "gh-pages": "^2.0.1",
+    "jsdom": "^27.2.0",
     "react": "^16.9.0",
-    "react-scripts": "^3.4.0",
-    "react-test-renderer": "^16.9.0",
-    "rollup": "^1.1.2",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "rollup-plugin-peer-deps-external": "^2.2.0",
-    "rollup-plugin-terser": "^7.0.0",
-    "rollup-plugin-typescript2": "^0.19.2",
-    "rollup-plugin-url": "^2.1.0",
+    "react-dom": "^16.14.0",
     "typescript": "^3.2.4",
+    "vitest": "^4.0.10",
     "zustand": "^3.1.2"
   }
 }

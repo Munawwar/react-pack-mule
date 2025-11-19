@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "build",
+    "outDir": "dist",
     "module": "esnext",
     "target": "es5",
     "lib": [
@@ -13,16 +13,13 @@
     "allowJs": false,
     "forceConsistentCasingInFileNames": true,
     "jsx": "preserve",
-    "noEmit": true,
-
+    "emitDeclarationOnly": true,
     "declaration": true,
     "skipLibCheck": true,
-
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "moduleResolution": "node",
-    
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -31,7 +28,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
+    "suppressImplicitAnyIndexErrors": true
   },
   "include": [
     "src"
@@ -41,7 +38,8 @@
     "build",
     "dist",
     "example",
-    "rollup.config.js",
-    "docs"
+    "docs",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

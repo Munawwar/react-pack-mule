@@ -1,13 +1,14 @@
-import { useCallback } from 'react';
-import create, {
+import { useCallback } from "react";
+import type {
 	SetState,
 	State,
 	StateCreator,
 	StoreApi,
 	Subscribe,
-	UseStore
-} from 'zustand';
-import shallow from 'zustand/shallow';
+	UseStore,
+} from "zustand";
+import create from "zustand";
+import shallow from "zustand/shallow";
 
 interface StoreMethods<TState extends State> {
 	useGlobalState<Key extends keyof TState>(
@@ -22,36 +23,34 @@ interface StoreMethods<TState extends State> {
 		updater?: (partial: Partial<TState>) => void,
 	): void;
 	createPropUpdater<Prop extends keyof TState>(
-		propName: Prop
+		propName: Prop,
 	): (
 		partial: Partial<TState[Prop]>,
 		updater?: (partial: Partial<TState>) => void,
 	) => void;
-	subscribe: Subscribe<TState>
+	subscribe: Subscribe<TState>;
 }
 
 export const createStore = function createStore<TState extends State>(
 	initState: TState,
-	initialStateCreator: StateCreator<TState, SetState<TState>> | StoreApi<TState> = () => initState,
+	initialStateCreator:
+		| StateCreator<TState, SetState<TState>>
+		| StoreApi<TState> = () => initState,
 ): StoreMethods<TState> {
 	type StoreKey = keyof TState;
 
 	// create the store
 	const useStore = create(initialStateCreator);
 
-	const {
-		getState: getStates,
-		setState: setStates,
-		subscribe,
-	} = useStore;
+	const { getState: getStates, setState: setStates, subscribe } = useStore;
 
 	// global state merger. unlike redux, I am not enforcing reducer layer
 	const plainObjectPrototype = Object.getPrototypeOf({});
 	function isPlainObject(obj: unknown): boolean {
 		return Boolean(
-			obj
-				&& typeof obj === 'object'
-				&& Object.getPrototypeOf(obj) === plainObjectPrototype
+			obj &&
+				typeof obj === "object" &&
+				Object.getPrototypeOf(obj) === plainObjectPrototype,
 		);
 	}
 
@@ -84,7 +83,7 @@ export const createStore = function createStore<TState extends State>(
 	function updateStates(
 		partial: Partial<TState>,
 		updater: (partial: Partial<TState>) => void = shallowUpdater,
-	): void {
+	) {
 		return updater(partial);
 	}
 
@@ -97,7 +96,7 @@ export const createStore = function createStore<TState extends State>(
 		return function propUpdater(
 			partial: Partial<TState[Prop]>,
 			updater: (partial: Partial<TState>) => void = shallowUpdater,
-		): void {
+		) {
 			return updater({ [propName]: partial } as Partial<TState>);
 		};
 	}
@@ -106,7 +105,10 @@ export const createStore = function createStore<TState extends State>(
 		propName: Key,
 		comparator = shallow,
 	): TState[Key] {
-		const selectorFunction = useCallback((store: TState) => store[propName], [propName]);
+		const selectorFunction = useCallback(
+			(store: TState) => store[propName],
+			[propName],
+		);
 		const results = useStore(selectorFunction, comparator);
 		return results;
 	}

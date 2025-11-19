@@ -1,12 +1,20 @@
-This project a proof-of-concept on using react-pack-mule - a shared/global state store, connecting multiple React components to the store and testing if
-components react to the changes in the store.
+# react-pack-mule Example
 
-### Start
+Example application demonstrating how to use react-pack-mule.
+
+## Development
+
+```bash
+npm install
+npm start
 ```
-yarn install
-yarn start
+
+Then open http://localhost:8080
+
+## Build
+
+```bash
+npm run build
 ```
 
-Type `showStates()` on browser console to see states any time.
-
-Note: `showStates()` is not part of the library. It is just a helper for this demo.
+Output will be in `public/build/`
