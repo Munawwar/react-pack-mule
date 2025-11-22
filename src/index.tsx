@@ -1,21 +1,15 @@
-import { useCallback } from "react";
-import type {
-	SetState,
-	State,
-	StateCreator,
-	StoreApi,
-	Subscribe,
-	UseStore,
-} from "zustand";
-import create from "zustand";
-import shallow from "zustand/shallow";
+import { useCallback, useRef } from "react";
+import type { StateCreator, StoreApi } from "zustand";
+import { create } from "zustand";
+import type { UseBoundStore } from "zustand/react";
+import { shallow } from "zustand/vanilla/shallow";
 
-interface StoreMethods<TState extends State> {
+interface StoreMethods<TState extends object> {
 	useGlobalState<Key extends keyof TState>(
 		selector: Key,
-		comparator?: (a: unknown, b: unknown) => boolean,
+		comparator?: (a: TState[Key], b: TState[Key]) => boolean,
 	): TState[Key];
-	useStore: UseStore<TState>;
+	useStore: UseBoundStore<StoreApi<TState>>;
 	getStates(): TState;
 	setStates(newStore: TState): void;
 	updateStates(
@@ -28,19 +22,17 @@ interface StoreMethods<TState extends State> {
 		partial: Partial<TState[Prop]>,
 		updater?: (partial: Partial<TState>) => void,
 	) => void;
-	subscribe: Subscribe<TState>;
+	subscribe: StoreApi<TState>["subscribe"];
 }
 
-export const createStore = function createStore<TState extends State>(
+export const createStore = function createStore<TState extends object>(
 	initState: TState,
-	initialStateCreator:
-		| StateCreator<TState, SetState<TState>>
-		| StoreApi<TState> = () => initState,
+	initialStateCreator: StateCreator<TState, [], []> = () => initState,
 ): StoreMethods<TState> {
 	type StoreKey = keyof TState;
 
 	// create the store
-	const useStore = create(initialStateCreator);
+	const useStore = create<TState>(initialStateCreator);
 
 	const { getState: getStates, setState: setStates, subscribe } = useStore;
 
@@ -56,10 +48,10 @@ export const createStore = function createStore<TState extends State>(
 
 	function shallowUpdater(partial: Partial<TState>) {
 		const store = getStates();
-		const mergedPartial = {};
-		const propNames = Object.keys(partial);
+		const mergedPartial: Partial<TState> = {};
+		const propNames = Object.keys(partial) as Array<keyof TState>;
 		while (propNames.length) {
-			const propName: string = propNames.shift() as string;
+			const propName = propNames.shift() as keyof TState;
 			const oldValue = store[propName];
 			const newValue = partial[propName];
 			if (isPlainObject(oldValue) && isPlainObject(newValue)) {
@@ -68,7 +60,7 @@ export const createStore = function createStore<TState extends State>(
 				mergedPartial[propName] = {
 					...oldObj,
 					...newObj,
-				};
+				} as TState[keyof TState];
 			} else {
 				mergedPartial[propName] = newValue;
 			}
@@ -103,14 +95,25 @@ export const createStore = function createStore<TState extends State>(
 
 	function useGlobalState<Key extends StoreKey>(
 		propName: Key,
-		comparator = shallow,
+		comparator?: (a: TState[Key], b: TState[Key]) => boolean,
 	): TState[Key] {
+		const equalityFn = comparator ?? shallow;
+		const prevRef = useRef<TState[Key] | undefined>(undefined);
 		const selectorFunction = useCallback(
-			(store: TState) => store[propName],
-			[propName],
+			(store: TState) => {
+				const next = store[propName];
+				// prevRef.current === undefined is there to make typescript happy
+				if (
+					prevRef.current === undefined ||
+					!equalityFn(prevRef.current, next)
+				) {
+					prevRef.current = next;
+				}
+				return prevRef.current;
+			},
+			[propName, equalityFn],
 		);
-		const results = useStore(selectorFunction, comparator);
-		return results;
+		return useStore(selectorFunction);
 	}
 
 	return {
