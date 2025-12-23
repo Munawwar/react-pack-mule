@@ -10,8 +10,10 @@ pack-mule avoids even more ceremonies such as actions functions, and gives an ev
 
 ### Quick example
 
+Prerequisite: React 18+
+
 ```
-npm install react-pack-mule zustand@^3.1.4
+npm install react-pack-mule zustand@^5.0.0
 ```
 
 JS
@@ -303,6 +305,11 @@ Returns: An object with functions to use the new store.
 
 <br><br>
 
+
+
+## Breaking change - v2
+
+Minimum React version 18+ and Zustand 5+ required now
 
 ## Breaking change - v1
 
